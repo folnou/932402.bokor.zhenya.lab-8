@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Бюджет — личные финансы</title>
+  <meta name="description" content="Учёт доходов и расходов, баланс и расходы по категориям">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <h1 class="logo">Книга <span>бюджета</span></h1>
+      <button id="add-btn" class="btn btn--primary" type="button">+ Добавить операцию</button>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <section class="summary" aria-labelledby="summary-title">
+      <h2 id="summary-title" class="visually-hidden">Сводка за выбранный период</h2>
+      <dl class="summary__grid">
+        <div class="stat stat--income">
+          <dt>Доходы</dt>
+          <dd id="sum-income">—</dd>
+        </div>
+        <div class="stat stat--expense">
+          <dt>Расходы</dt>
+          <dd id="sum-expense">—</dd>
+        </div>
+        <div class="stat stat--balance">
+          <dt>Баланс</dt>
+          <dd id="sum-balance">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <form id="filters" class="filters" aria-label="Фильтры" novalidate>
+      <fieldset class="segmented">
+        <legend>Тип операций</legend>
+        <label><input type="radio" name="type" value="" checked><span>Все</span></label>
+        <label><input type="radio" name="type" value="income"><span>Доходы</span></label>
+        <label><input type="radio" name="type" value="expense"><span>Расходы</span></label>
+      </fieldset>
+
+      <div class="field">
+        <label for="filter-from">С даты</label>
+        <input id="filter-from" name="from" type="date">
+      </div>
+      <div class="field">
+        <label for="filter-to">По дату</label>
+        <input id="filter-to" name="to" type="date">
+      </div>
+
+      <div class="filters__presets">
+        <button id="preset-month" class="btn btn--ghost" type="button">Этот месяц</button>
+        <button id="preset-all" class="btn btn--ghost" type="button">Всё время</button>
+      </div>
+    </form>
+
+    <div class="tabs">
+      <div class="tabs__list" role="tablist" aria-label="Разделы">
+        <button id="tab-list" class="tabs__tab" role="tab" type="button" aria-selected="true" aria-controls="panel-list">Операции</button>
+        <button id="tab-chart" class="tabs__tab" role="tab" type="button" aria-selected="false" aria-controls="panel-chart" tabindex="-1">Аналитика</button>
+      </div>
+
+      <section id="panel-list" class="tabs__panel" role="tabpanel" aria-labelledby="tab-list">
+        <p id="list-empty" class="empty" hidden>Операций за выбранный период нет.</p>
+        <div class="table-wrap">
+          <table id="tx-table" class="tx-table">
+            <caption class="visually-hidden">Список операций</caption>
+            <thead>
+              <tr>
+                <th scope="col">Дата</th>
+                <th scope="col">Категория</th>
+                <th scope="col">Описание</th>
+                <th scope="col" class="num">Сумма</th>
+                <th scope="col"><span class="visually-hidden">Действия</span></th>
+              </tr>
+            </thead>
+            <tbody id="tx-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="panel-chart" class="tabs__panel" role="tabpanel" aria-labelledby="tab-chart" hidden>
+        <div class="chart-block">
+          <h2 class="chart-title">Доходы и расходы</h2>
+          <ul id="chart-totals" class="bars"></ul>
+        </div>
+        <div class="chart-block">
+          <h2 class="chart-title">Расходы по категориям</h2>
+          <ul id="chart-expense" class="bars"></ul>
+        </div>
+        <div class="chart-block">
+          <h2 class="chart-title">Доходы по категориям</h2>
+          <ul id="chart-income" class="bars"></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="tx-dialog" class="dialog" aria-labelledby="dialog-title">
+    <form id="tx-form" class="dialog__form" novalidate>
+      <h2 id="dialog-title">Новая операция</h2>
+
+      <fieldset class="segmented segmented--form">
+        <legend>Тип</legend>
+        <label><input type="radio" name="type" value="expense" checked><span>Расход</span></label>
+        <label><input type="radio" name="type" value="income"><span>Доход</span></label>
+      </fieldset>
+
+      <div class="field">
+        <label for="f-amount">Сумма, ₽</label>
+        <input id="f-amount" name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required>
+      </div>
+
+      <div class="field">
+        <label for="f-category">Категория</label>
+        <input id="f-category" name="category" type="text" list="category-list" maxlength="50" required autocomplete="off">
+        <datalist id="category-list"></datalist>
+      </div>
+
+      <div class="field">
+        <label for="f-date">Дата</label>
+        <input id="f-date" name="date" type="date" required>
+      </div>
+
+      <div class="field">
+        <label for="f-description">Описание</label>
+        <input id="f-description" name="description" type="text" maxlength="200">
+      </div>
+
+      <p id="form-error" class="form-error" role="alert"></p>
+
+      <div class="dialog__actions">
+        <button id="cancel-btn" class="btn btn--ghost" type="button">Отмена</button>
+        <button class="btn btn--primary" type="submit">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="confirm-dialog" class="dialog dialog--small" aria-labelledby="confirm-title">
+    <form method="dialog" class="dialog__form">
+      <h2 id="confirm-title">Удалить операцию?</h2>
+      <p id="confirm-text"></p>
+      <div class="dialog__actions">
+        <button class="btn btn--ghost" value="cancel">Отмена</button>
+        <button id="confirm-delete" class="btn btn--danger" value="delete">Удалить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

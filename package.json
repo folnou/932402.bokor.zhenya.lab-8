@@ -1,0 +1,16 @@
+{
+  "name": "lab8-budget",
+  "version": "1.0.0",
+  "description": "Лабораторная работа №8: планирование бюджета (личные финансы)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node db.js",
+    "reset-db": "node db.js --reset"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "sqlite3": "^5.1.7"
+  }
+}
